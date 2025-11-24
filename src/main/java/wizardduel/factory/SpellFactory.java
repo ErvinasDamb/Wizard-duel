@@ -10,138 +10,117 @@ import wizardduel.model.spells.ManaDrainSpell;
 import wizardduel.model.spells.ShieldSpell;
 import wizardduel.model.spells.ChargeSpell;
 
+import java.util.List;
 
-
-/**
- * Factory for creating predefined spells for decks and battles.
- * This is our creational design pattern usage.
- */
 public final class SpellFactory {
 
     private SpellFactory() {
-        // Utility class, no instances.
     }
 
-    /**
-     * Basic FIRE damage spell: mid cost, solid hit, decent accuracy.
-     */
+    // --- Single target DAMAGE spells ---
+
     public static Spell fireball() {
         return new DamageSpell(
                 "fireball_common_01",
                 "Fireball",
-                5,              // manaCost
-                10,             // power (AI heuristic)
-                8,              // damageMin
-                12,             // damageMax
+                14,             // manaCost (brangus, bet stiprus)
+                110,            // power (AI heuristic)
+                90,             // damageMin
+                130,            // damageMax
                 0.85,           // accuracy
-                0.15,           // critChance
+                0.20,           // critChance
                 1.7,            // critMultiplier
                 SpellType.DAMAGE,
                 Element.FIRE,
-                0.30,           // elementApplyChance (30% to apply FIRE)
-                2,              // elementDuration (2 turns)
+                0.35,           // 35% šansas uždėti FIRE
+                2,              // 2 turnai FIRE solo efekto
                 Rarity.COMMON
         );
     }
 
-    /**
-     * ICE shard: slightly lower damage, higher accuracy, applies ICE more reliably.
-     * ICE solo effect: more miss chance for the target.
-     */
     public static Spell iceShard() {
         return new DamageSpell(
                 "ice_shard_common_01",
                 "Ice Shard",
-                4,              // manaCost
-                8,              // power
-                6,              // damageMin
-                9,              // damageMax
-                0.9,            // high accuracy
-                0.10,           // critChance
-                1.5,            // critMultiplier
+                12,             // pigesnis, bet kiek silpnesnis
+                90,
+                70,
+                95,
+                0.9,            // labai tikslus
+                0.10,
+                1.5,
                 SpellType.DAMAGE,
                 Element.ICE,
-                0.4,            // higher chance to apply ICE
-                2,              // elementDuration
+                0.45,           // ICE lengviau uždėt, nes debuffinis
+                2,
                 Rarity.COMMON
         );
     }
 
-    /**
-     * Poison bolt: weaker upfront damage, but enables POISON element.
-     * POISON solo effect: slow DOT and heal reduction (will be handled in element system).
-     */
     public static Spell poisonBolt() {
         return new DamageSpell(
                 "poison_bolt_common_01",
                 "Poison Bolt",
-                4,              // manaCost
-                7,              // power
-                5,              // damageMin
-                8,              // damageMax
-                0.85,           // accuracy
-                0.10,           // critChance
-                1.5,            // critMultiplier
+                12,
+                85,
+                65,
+                90,
+                0.85,
+                0.10,
+                1.5,
                 SpellType.DAMAGE,
                 Element.POISON,
-                0.5,            // 50% to apply POISON
-                3,              // elementDuration (longer poison)
+                0.55,           // 55% POISON
+                3,              // ilgesnis poison
                 Rarity.COMMON
         );
     }
 
-    /**
-     * Basic magic shield spell: grants a moderate shield to the caster.
-     */
+    // --- Shield / utility ---
+
     public static Spell magicShield() {
         return new ShieldSpell(
                 "magic_shield_common_01",
                 "Magic Shield",
-                4,              // manaCost
-                6,              // power
-                10,             // shieldValue
+                14,             // manaCost
+                80,             // power (AI)
+                120,            // shieldValue (12% HP)
                 SpellType.SHIELD,
                 Element.LIGHT,
-                0.3,            // elementApplyChance
-                2,              // elementDuration
+                0.4,            // gera proga užsidėti LIGHT
+                2,
                 Rarity.COMMON
         );
     }
 
-    /**
-     * Simple burning curse: applies a FIRE DoT effect.
-     */
     public static Spell burningCurse() {
         return new DotSpell(
                 "burning_curse_common_01",
                 "Burning Curse",
-                5,              // manaCost
-                9,              // power
-                4,              // dotAmount per turn
-                2,              // dotDuration
+                16,
+                95,
+                40,
+                3,
                 SpellType.DOT,
                 Element.FIRE,
-                0.35,           // elementApplyChance
-                2,              // elementDuration
-                Rarity.COMMON
+                0.4,
+                2,
+                Rarity.UNCOMMON
         );
     }
 
-    /**
-     * Basic mana burn spell.
-     */
     public static Spell manaDrain() {
         return new ManaDrainSpell(
                 "mana_drain_common_01",
                 "Mana Drain",
-                5,              // manaCost
-                8,              // power
-                6,              // manaDrainAmount
+                16,
+                80,
+                30,
                 SpellType.MANADRAIN,
                 Element.ELECTRIC,
-                0.3,            // elementApplyChance
-                2,              // elementDuration
-                Rarity.COMMON
+                0.35,
+                2,
+                Rarity.UNCOMMON
         );
     }
 
@@ -149,21 +128,45 @@ public final class SpellFactory {
         return new ChargeSpell(
                 "charged_strike_common_01",
                 "Charged Strike",
-                6,              // manaCost
-                12,             // power
-                7,              // damageMin
-                11,             // damageMax
-                0.8,            // accuracy
-                0.2,            // critChance
-                1.8,            // critMultiplier
-                1.8,            // chargeMultiplier
+                18,
+                130,
+                110,
+                160,
+                0.8,
+                0.25,
+                1.8,
+                2.0,
                 Element.ELECTRIC,
-                0.25,           // elementApplyChance
-                2,              // elementDuration
+                0.3,
+                2,
                 Rarity.RARE
         );
     }
 
+    // --- Deck'ai ---
 
+    public static List<Spell> createDefaultPlayerDeck() {
+        return List.of(
+                fireball(),
+                iceShard(),
+                poisonBolt(),
+                magicShield(),
+                burningCurse(),
+                manaDrain(),
+                chargedStrike()
+        );
+    }
 
+    public static List<Spell> createDefaultEnemyDeck() {
+        // Kol kas tas pats – vėliau galėsim diferencijuoti
+        return List.of(
+                fireball(),
+                iceShard(),
+                poisonBolt(),
+                magicShield(),
+                burningCurse(),
+                manaDrain(),
+                chargedStrike()
+        );
+    }
 }

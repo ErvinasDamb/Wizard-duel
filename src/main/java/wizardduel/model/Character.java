@@ -24,7 +24,7 @@ public class Character {
     private int hp = maxHp;
 
     private final int maxMana = 100;
-    private int mana = 40; // start mana
+    private int mana = 100; // start mana
 
     // Simple shield & base DoT (for spells)
     private int shield;
@@ -200,6 +200,48 @@ public class Character {
     public void leakMana(int amount) {
         if (amount <= 0 || mana <= 0) return;
         mana = Math.max(0, mana - amount);
+    }
+
+    /**
+     * Short string with active element effects and remaining turns.
+     */
+    public String getElementEffectsSummary() {
+        if (activeElementEffects.isEmpty()) {
+            return "None";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < activeElementEffects.size(); i++) {
+            ElementEffect e = activeElementEffects.get(i);
+            sb.append(e.getElement().name())
+                    .append("(")
+                    .append(e.getRemainingTurns())
+                    .append(")");
+            if (i < activeElementEffects.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Short string with active synergy effects and remaining turns.
+     */
+    public String getSynergyEffectsSummary() {
+        if (activeSynergyEffects.isEmpty()) {
+            return "None";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < activeSynergyEffects.size(); i++) {
+            SynergyEffect s = activeSynergyEffects.get(i);
+            sb.append(s.getType().name())
+                    .append("(")
+                    .append(s.getRemainingTurns())
+                    .append(")");
+            if (i < activeSynergyEffects.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
     }
 
     @Override

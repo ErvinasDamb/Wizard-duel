@@ -9,7 +9,7 @@ import wizardduel.model.enums.SynergyType;
 import java.util.Iterator;
 
 /**
- * Tvarko visus ongoing efektus ėjimo pradžioje.
+ * Applies all ongoing status effects at the start of the character's turn.
  */
 public final class StatusEngine {
 
@@ -24,32 +24,39 @@ public final class StatusEngine {
         tickDurations(c);
     }
 
-    // --- SOLO ELEMENT EFFECTS ---
-
+    /**
+     * Solo element effects (FIRE, ICE, etc.).
+     */
     private static void applySoloElements(Character c) {
         for (ElementEffect effect : c.getActiveElementEffects()) {
-            Element e = effect.getElement();
-            switch (e) {
+            switch (effect.getElement()) {
                 case FIRE:
-                    c.takeDamage(30);               // ~3% HP
+                    // ~3% HP per turn
+                    c.takeDamage(30);
                     break;
                 case WATER:
+                    // Small mana regen
                     c.regenerateMana(8);
                     break;
                 case ICE:
+                    // Higher miss chance
                     c.addAccuracyModifier(-0.15);
                     break;
                 case ELECTRIC:
+                    // Crit chance up
                     c.addCritChanceBonus(0.15);
                     break;
                 case LIGHT:
+                    // Stronger shields
                     c.addShieldBonusMultiplier(0.3);
                     break;
                 case BLOOD:
+                    // More damage, small self damage
                     c.addDamageMultiplier(0.2);
                     c.takeDamage(25);
                     break;
                 case POISON:
+                    // Small dot + weaker heals
                     c.takeDamage(20);
                     c.multiplyHealReceived(0.5);
                     break;
@@ -60,42 +67,50 @@ public final class StatusEngine {
         }
     }
 
-    // --- SYNERGY EFFECTS ---
-
+    /**
+     * Synergy effects created from pairs of elements.
+     */
     private static void applySynergies(Character c) {
         for (SynergyEffect effect : c.getActiveSynergyEffects()) {
-            SynergyType type = effect.getType();
-            switch (type) {
+            switch (effect.getType()) {
                 case BLAZING_VENOM:
+                    // Heavy DoT + big heal cut
                     c.takeDamage(60);
                     c.multiplyHealReceived(0.5);
                     break;
                 case BLOODFIRE_FRENZY:
+                    // Huge damage buff + self damage
                     c.addDamageMultiplier(0.4);
                     c.takeDamage(40);
                     break;
                 case FROZEN_STATIC:
+                    // Strong accuracy debuff
                     c.addAccuracyModifier(-0.3);
                     break;
                 case CORRUPTED_VITALS:
+                    // Heal block + chip damage
                     c.takeDamage(30);
                     c.setHealReceivedMultiplier(0.0);
                     break;
                 case HOLY_SIPHON:
+                    // Lifesteal on damage dealt
                     c.addLifestealPercent(0.3);
                     break;
                 case TOXIC_FROSTBITE:
+                    // Damage dealt reduced
                     c.addDamageMultiplier(-0.25);
                     break;
                 case SHOCKING_CURRENT:
+                    // Mana leak per turn
                     c.leakMana(12);
                     break;
             }
         }
     }
 
-    // --- DURATION TICK & CLEANUP ---
-
+    /**
+     * Ticks remaining duration and removes expired effects.
+     */
     private static void tickDurations(Character c) {
         Iterator<ElementEffect> itEl = c.getActiveElementEffects().iterator();
         while (itEl.hasNext()) {
