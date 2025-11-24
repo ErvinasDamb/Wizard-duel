@@ -113,7 +113,7 @@ public final class SpellFactory {
                 16,
                 80,
                 30,
-                SpellType.MANAD_RAIN,
+                SpellType.MANA_DRAIN,
                 Element.ELECTRIC,
                 0.35,
                 2,
@@ -140,6 +140,74 @@ public final class SpellFactory {
         );
     }
 
+    public static Spell holyLight() {
+        return new ShieldSpell(
+                "holy_light_uncommon_01",
+                "Holy Light",
+                14,
+                0,       // power
+                100,     // shield value
+                SpellType.SHIELD,
+                Element.LIGHT,
+                0.3,
+                2,
+                Rarity.LEGENDARY
+        );
+    }
+
+    public static Spell waterBlast() {
+        return new DamageSpell(
+                "water_blast_common_01",
+                "Water Blast",
+                13,
+                95,
+                80,
+                115,
+                0.9,
+                0.15,
+                1.6,
+                SpellType.DAMAGE,
+                Element.WATER,
+                0.4,
+                2,
+                Rarity.EPIC
+        );
+    }
+
+    public static Spell bloodSpike() {
+        return new DamageSpell(
+                "blood_spike_uncommon_01",
+                "Blood Spike",
+                17,
+                120,
+                100,
+                150,
+                0.8,
+                0.25,
+                1.9,
+                SpellType.DAMAGE,
+                Element.BLOOD,
+                0.45,
+                3,
+                Rarity.UNCOMMON
+        );
+    }
+
+    public static Spell holyBarrier() {
+        return new ShieldSpell(
+                "holy_barrier_epic_01",
+                "Holy Barrier",
+                18,
+                100,
+                180,
+                SpellType.SHIELD,
+                Element.LIGHT,
+                0.5,
+                3,
+                Rarity.EPIC
+        );
+    }
+
     // ================= DECK BUILDING SUPPORT =================
 
     /**
@@ -155,6 +223,10 @@ public final class SpellFactory {
         pool.add(burningCurse());
         pool.add(manaDrain());
         pool.add(chargedStrike());
+        pool.add(holyLight());
+        pool.add(waterBlast());
+        pool.add(bloodSpike());
+        pool.add(holyBarrier());
         return pool;
     }
 
@@ -164,20 +236,17 @@ public final class SpellFactory {
      */
     public static Spell createById(String id) {
         switch (id) {
-            case "fireball_common_01":
-                return fireball();
-            case "ice_shard_common_01":
-                return iceShard();
-            case "poison_bolt_common_01":
-                return poisonBolt();
-            case "magic_shield_common_01":
-                return magicShield();
-            case "burning_curse_common_01":
-                return burningCurse();
-            case "mana_drain_common_01":
-                return manaDrain();
-            case "charged_strike_common_01":
-                return chargedStrike();
+            case "fireball_common_01":  return fireball();
+            case "ice_shard_common_01": return iceShard();
+            case "poison_bolt_common_01": return poisonBolt();
+            case "magic_shield_common_01": return magicShield();
+            case "burning_curse_common_01": return burningCurse();
+            case "mana_drain_common_01": return manaDrain();
+            case "charged_strike_common_01": return chargedStrike();
+            case "holy_light_uncommon_01": return holyLight();
+            case "water_blast_common_01": return waterBlast();
+            case "blood_spike_uncommon_01": return bloodSpike();
+            case "holy_barrier_epic_01": return holyBarrier();
             default:
                 throw new IllegalArgumentException("Unknown spell id: " + id);
         }
@@ -200,4 +269,7 @@ public final class SpellFactory {
         // AI gali naudoti tą patį pool'ą – vėliau galėsim atskirti
         return createDefaultPlayerDeck();
     }
+
+
+
 }

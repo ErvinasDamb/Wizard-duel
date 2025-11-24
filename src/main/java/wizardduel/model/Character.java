@@ -21,7 +21,7 @@ public class Character {
 
     // Primary resources
     private final int maxHp = 1000;
-    private int hp = maxHp;
+    private int hp = maxHp; // start hp
 
     private final int maxMana = 100;
     private int mana = 100; // start mana
@@ -61,6 +61,25 @@ public class Character {
         mana -= amount;
         return true;
     }
+
+    // --- Compatibility helpers for AI / UI ---
+
+    public int getHealth() {
+        return hp;
+    }
+
+    public int getMaxHealth() {
+        return maxHp;
+    }
+
+    public boolean isDead() {
+        return !isAlive();
+    }
+
+    public int getCurrentMana() {
+        return mana;
+    }
+
 
     public void regenerateMana(int amount) {
         if (amount <= 0) return;

@@ -74,7 +74,7 @@ public class AIDefensiveStrategy implements AIStrategy {
             if (s.getType() == SpellType.SHIELD) {
                 score += 25;
             }
-            if (s.getType() == SpellType.MANAD_RAIN && opponent.getMana() > 20) {
+            if (s.getType() == SpellType.MANA_DRAIN && opponent.getMana() > 20) {
                 score += 15;
             }
         }

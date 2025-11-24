@@ -2,6 +2,7 @@ package wizardduel.model;
 
 import wizardduel.model.Spell;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,5 +18,8 @@ public class PlayerWizard extends Wizard {
         super(name, initialSpells);
     }
 
-    // Čia gali likti player-specifiniai metodai (input, deck management, t.t.)
+    public List<Spell> getHand() {
+        int size = Math.min(3, deck.size());
+        return new ArrayList<>(deck.subList(0, size));
+    }
 }

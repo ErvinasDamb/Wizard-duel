@@ -68,7 +68,7 @@ public class AIAgressiveStrategy implements AIStrategy {
         if (s.getType() == SpellType.DAMAGE || s.getType() == SpellType.DOT) {
             score += 25;
         }
-        if (s.getType() == SpellType.MANAD_RAIN && opponent.getMana() > 25) {
+        if (s.getType() == SpellType.MANA_DRAIN && opponent.getMana() > 25) {
             score += 30;
         }
         if (s.getType() == SpellType.SHIELD && self.getHealth() < self.getMaxHealth() * 0.5) {

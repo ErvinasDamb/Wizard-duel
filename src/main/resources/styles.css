@@ -1,0 +1,14 @@
+.title-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.spell-card {
+    -fx-background-color: #222;
+    -fx-text-fill: #fff;
+}
+
+.potion-card {
+    -fx-background-color: #333;
+    -fx-text-fill: #fff;
+}
