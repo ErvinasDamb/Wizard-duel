@@ -62,8 +62,9 @@ public class ManaDrainSpell extends AbstractSpell {
             return;
         }
 
-        int drained = Math.min(targetMana, manaDrainAmount);
-        target.setMana(targetMana - drained);
-        caster.setMana(caster.getMana() + drained);
+        int before = target.getMana();
+        target.useMana(getManaDrainAmount());
+        int drained = before - target.getMana();
+        caster.regenerateMana(drained);
     }
 }
