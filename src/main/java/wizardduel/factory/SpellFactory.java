@@ -101,7 +101,7 @@ public final class SpellFactory {
                 6,              // power
                 10,             // shieldValue
                 SpellType.SHIELD,
-                Element.LIGHT,  // light buffina shield sinergijoj ateity
+                Element.LIGHT,
                 0.3,            // elementApplyChance
                 2,              // elementDuration
                 Rarity.COMMON
@@ -156,7 +156,7 @@ public final class SpellFactory {
                 0.8,            // accuracy
                 0.2,            // critChance
                 1.8,            // critMultiplier
-                1.8,            // chargeMultiplier (skalina žiauriai)
+                1.8,            // chargeMultiplier
                 Element.ELECTRIC,
                 0.25,           // elementApplyChance
                 2,              // elementDuration

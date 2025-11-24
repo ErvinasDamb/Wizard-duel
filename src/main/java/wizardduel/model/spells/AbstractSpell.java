@@ -45,7 +45,6 @@ public abstract class AbstractSpell implements Spell {
 
     /**
      * Full spell definition constructor.
-     * Ilgas, bet bus naudojamas per fabrikus, ne ranka visur.
      */
     protected AbstractSpell(
             String id,

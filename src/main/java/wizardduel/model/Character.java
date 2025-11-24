@@ -24,7 +24,7 @@ public abstract class Character {
      */
     public boolean useMana(int amount) {
         if (amount <= 0) {
-            return true; // nieko nereikia, laikom kaip sėkmę
+            return true;
         }
         if (mana < amount) {
             return false;

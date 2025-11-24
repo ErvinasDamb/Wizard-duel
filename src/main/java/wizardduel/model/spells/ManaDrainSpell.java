@@ -29,7 +29,7 @@ public class ManaDrainSpell extends AbstractSpell {
                 power,
                 0,      // damageMin
                 0,      // damageMax
-                1.0,    // accuracy (nereikalinga)
+                1.0,    // accuracy
                 0.0,    // critChance
                 1.0,    // critMultiplier
                 0,      // dotAmount
@@ -65,6 +65,5 @@ public class ManaDrainSpell extends AbstractSpell {
         int drained = Math.min(targetMana, manaDrainAmount);
         target.setMana(targetMana - drained);
         caster.setMana(caster.getMana() + drained);
-        // Jokio HP punish – čia ne burn, o drain.
     }
 }

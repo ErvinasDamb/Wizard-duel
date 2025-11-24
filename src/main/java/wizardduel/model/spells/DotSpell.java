@@ -61,6 +61,5 @@ public class DotSpell extends AbstractSpell {
             return;
         }
         target.applyDot(dotAmount, dotDuration);
-        // Momentinio damage nedarom – šitas spellas yra DoT-only.
     }
 }

@@ -60,7 +60,6 @@ public class ShieldSpell extends AbstractSpell {
             return;
         }
         caster.applyShield(shieldValue);
-        // Element application bus tvarkoma vėliau per element/synergy sistemą.
     }
 }
 
