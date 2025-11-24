@@ -1,6 +1,7 @@
 package wizardduel.model;
 
-import wizardduel.model.Spell;
+import wizardduel.mechanics.ai.AIStrategy;
+
 
 import java.util.List;
 
@@ -12,10 +13,18 @@ public class EnemyWizard extends Wizard {
     public EnemyWizard(String name) {
         super(name);
     }
+    private AIStrategy aiStrategy;
 
     public EnemyWizard(String name, List<Spell> initialSpells) {
         super(name, initialSpells);
     }
 
-    // Čia gali būti AI strategijos, target pasirinkimas ir pan.
+    public void setAiStrategy(AIStrategy aiStrategy) {
+        this.aiStrategy = aiStrategy;
+    }
+
+    public AIStrategy getAiStrategy() {
+        return aiStrategy;
+    }
+
 }

@@ -39,7 +39,10 @@ public interface Spell {
 
     SpellType getType();
     Element getElement();
-
+    /**
+     * Whether this spell is currently in the active selection (player's hand).
+     */
+    boolean isActive();
     /**
      * Chance to apply this spell's element as a status effect on the target/caster.
      */
@@ -51,4 +54,8 @@ public interface Spell {
     int getElementDuration();
 
     Rarity getRarity();
+    /**
+     * Sets if this spell is currently active (in hand) or inactive (in deck only).
+     */
+    void setActive(boolean active);
 }

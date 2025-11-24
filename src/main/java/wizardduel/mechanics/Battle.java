@@ -5,7 +5,13 @@ import wizardduel.model.EnemyWizard;
 import wizardduel.model.PlayerWizard;
 import wizardduel.model.Spell;
 import wizardduel.model.Wizard;
+import wizardduel.model.enums.Element;
+import wizardduel.model.enums.SpellType;
+import wizardduel.model.effects.ElementEffect;
+import wizardduel.mechanics.ai.AIStrategy;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -27,6 +33,17 @@ public class Battle {
     public Battle(PlayerWizard player, EnemyWizard enemy) {
         this.player = player;
         this.enemy = enemy;
+
+        // random deck order at start
+        shuffleDeck(player.getDeck());
+        shuffleDeck(enemy.getDeck());
+
+        // initial active spells (first 3)
+        refreshActiveFlags();
+    }
+
+    private void shuffleDeck(List<Spell> deck) {
+        java.util.Collections.shuffle(deck);
     }
 
     public void start() {
@@ -58,113 +75,192 @@ public class Battle {
         System.out.println("Player: " + player);
         System.out.println("  Elements: " + player.getElementEffectsSummary());
         System.out.println("  Synergies: " + player.getSynergyEffectsSummary());
+        System.out.println("  Potion  : " + player.getPotionSummary());
 
         System.out.println("Enemy : " + enemy);
         System.out.println("  Elements: " + enemy.getElementEffectsSummary());
         System.out.println("  Synergies: " + enemy.getSynergyEffectsSummary());
+        System.out.println("  Potion  : " + enemy.getPotionSummary());
     }
 
 
     // ---------------- PLAYER TURN ----------------
 
     private void playerTurn() {
-        System.out.println("\nTavo ėjimas.");
+        System.out.println("\nYour turn.");
         player.onTurnStart();
 
-        List<Spell> spells = player.getDeck();
-
         while (true) {
-            printPlayerSpellMenu(spells);
+            printPlayerHand();
 
-            int choice = readInt("Pasirink burtą (0 – praleisti): ");
+            int choice = readInt("Choose spell (0 – skip, 9 – use potion): ");
 
             if (choice == 0) {
-                System.out.println(player.getName() + " praleidžia ėjimą ir kaupia maną.");
+                System.out.println(player.getName() + " skips turn and gains mana.");
                 player.regenerateMana(SKIP_MANA_BONUS);
                 return;
             }
 
+            if (choice == 9) {
+                if (player.hasPotion()) {
+                    player.useEquippedPotion();
+                    return; // potion consumes the turn
+                } else {
+                    System.out.println("You have no usable potion.");
+                    continue;
+                }
+            }
+
+
             int index = choice - 1;
-            if (index < 0 || index >= spells.size()) {
-                System.out.println("Neteisingas numeris.");
+            if (index < 0 || index > 2) {
+                System.out.println("You can only choose from 1 to 3.");
                 continue;
             }
 
-            Spell spell = spells.get(index);
+            List<Spell> deck = player.getDeck();
+            if (deck.size() <= index) {
+                System.out.println("Not enough spells in deck.");
+                continue;
+            }
+
+            Spell spell = deck.get(index);
+
+            if (!spell.isActive()) {
+                System.out.println("This spell is not active.");
+                continue;
+            }
 
             if (spell.getManaCost() > player.getMana()) {
-                System.out.println("Nepakanka manos šiam burtui.");
+                System.out.println("Not enough mana.");
                 continue;
             }
 
-            System.out.println(player.getName() + " naudoja: " + spell.getName());
+            System.out.println(player.getName() + " casts: " + spell.getName());
             castSpell(player, enemy, spell);
+            onSpellPlayed(deck, index);
             return;
         }
     }
 
-    private void printPlayerSpellMenu(List<Spell> spells) {
-        System.out.println("\nTavo burtai:");
-        for (int i = 0; i < spells.size(); i++) {
-            Spell s = spells.get(i);
-            String manaInfo = " [kaina: " + s.getManaCost() + "]";
+    private void printPlayerHand() {
+        System.out.println("\nYour hand (top 3 spells):");
+        List<Spell> deck = player.getDeck();
+
+        for (int i = 0; i < 3 && i < deck.size(); i++) {
+            Spell s = deck.get(i);
+            String activeTag = s.isActive() ? "ACTIVE" : "INACTIVE";
+            String manaInfo = "mana " + s.getManaCost();
             if (s.getManaCost() > player.getMana()) {
-                manaInfo += " (NEPAKANKA MANOS)";
+                manaInfo += " (NOT ENOUGH)";
             }
-            System.out.println((i + 1) + ". " + s.getName() + manaInfo);
+            System.out.println((i + 1) + ". " + s.getName()
+                    + " [" + activeTag + ", " + manaInfo + "]");
         }
-        System.out.println("0. Praleisti ėjimą (+ " + SKIP_MANA_BONUS + " manos)");
+        System.out.println("0. Skip turn (+ " + SKIP_MANA_BONUS + " mana)");
+        System.out.println("9. Use potion (" + player.getPotionSummary() + ")");
+    }
+
+    /**
+     * Rotates deck after playing the spell at given index:
+     * used card goes to the end, others shift forward,
+     * then active flags are updated (top 3 active).
+     */
+    private void onSpellPlayed(List<Spell> deck, int index) {
+        if (index < 0 || index >= deck.size()) {
+            return;
+        }
+        Spell used = deck.remove(index);
+        used.setActive(false);
+        deck.add(used);
+        setActiveFlags(deck);
     }
 
     // ---------------- ENEMY TURN ----------------
 
     private void enemyTurn() {
-        System.out.println("\nPriešininko ėjimas.");
+        System.out.println("\nEnemy turn.");
         enemy.onTurnStart();
 
-        Spell chosen = chooseEnemySpell();
-
-        if (chosen == null) {
-            System.out.println(enemy.getName() + " praleidžia ėjimą ir kaupia maną.");
+        if (enemy.getAiStrategy() == null) {
+            System.out.println("No AI strategy set – enemy skips.");
             enemy.regenerateMana(SKIP_MANA_BONUS);
             return;
         }
 
-        System.out.println(enemy.getName() + " naudoja: " + chosen.getName());
+        // Potion pirmiau
+        if (enemy.hasPotion()
+                && enemy.getAiStrategy().shouldUsePotion(enemy, player)) {
+            System.out.println(enemy.getName() + " uses a potion!");
+            enemy.useEquippedPotion();
+            return;
+        }
+
+        List<Spell> deck = enemy.getDeck();
+        List<Spell> hand = new ArrayList<>();
+        for (int i = 0; i < 3 && i < deck.size(); i++) {
+            Spell s = deck.get(i);
+            if (s.isActive()) {
+                hand.add(s);
+            }
+        }
+
+        Spell chosen = enemy.getAiStrategy().chooseSpell(enemy, player, hand, rng);
+
+        if (chosen == null) {
+            System.out.println(enemy.getName() + " skips and gains mana.");
+            enemy.regenerateMana(SKIP_MANA_BONUS);
+            return;
+        }
+
+        int index = deck.indexOf(chosen);
+        if (index < 0) {
+            // jei dėl kokios nors priežasties nepavyko – fallback
+            System.out.println("AI picked invalid spell, enemy skips.");
+            enemy.regenerateMana(SKIP_MANA_BONUS);
+            return;
+        }
+
+        System.out.println(enemy.getName() + " casts: " + chosen.getName());
         castSpell(enemy, player, chosen);
+        onSpellPlayed(deck, index);
     }
 
+
     private Spell chooseEnemySpell() {
-        List<Spell> spells = enemy.getDeck();
+        List<Spell> deck = enemy.getDeck();
+        List<Spell> candidates = new ArrayList<>();
 
-        // Filtruojam tuos, kuriems užtenka manos
-        List<Spell> affordable = spells.stream()
-                .filter(s -> s.getManaCost() <= enemy.getMana())
-                .toList();
+        for (int i = 0; i < 3 && i < deck.size(); i++) {
+            Spell s = deck.get(i);
+            if (!s.isActive()) {
+                continue;
+            }
+            if (s.getManaCost() <= enemy.getMana()) {
+                candidates.add(s);
+            }
+        }
 
-        if (affordable.isEmpty()) {
+        if (candidates.isEmpty()) {
             return null;
         }
 
-        // Labai paprastas AI: random pasirinkimas
-        int idx = rng.nextInt(affordable.size());
-        return affordable.get(idx);
+        // Kol kas paprastas AI: random iš aktyvių, kuriems užtenka manos
+        int idx = rng.nextInt(candidates.size());
+        return candidates.get(idx);
     }
+
 
 
     // ---------------- COMMON CAST ----------------
 
     private void castSpell(Wizard caster, Wizard target, Spell spell) {
-        // Pirmiausia bandom nusimokėti manos kainą
         if (!caster.useMana(spell.getManaCost())) {
-            System.out.println(caster.getName() + " neturi pakankamai manos.");
+            System.out.println(caster.getName() + " does not have enough mana.");
             return;
         }
 
-        // Tada spell logika
         spell.cast(caster, target);
-
-        // Ir galiausiai – elementas ir synergy
         ElementEngine.applyElementIfNeeded(spell, caster, target);
     }
 
@@ -173,9 +269,11 @@ public class Battle {
     private void endOfRound() {
         player.regenerateMana(BASE_MANA_REGEN);
         enemy.regenerateMana(BASE_MANA_REGEN);
-        System.out.println("\nRaundo pabaiga. Abiems suteikta po " +
-                BASE_MANA_REGEN + " manos.");
+
+        System.out.println("\nEnd of round. Both gain "
+                + BASE_MANA_REGEN + " mana.");
     }
+
 
     private void printResult() {
         System.out.println("\n=== Kova baigėsi ===");
@@ -196,4 +294,17 @@ public class Battle {
         }
         return scanner.nextInt();
     }
+
+    private void refreshActiveFlags() {
+        setActiveFlags(player.getDeck());
+        setActiveFlags(enemy.getDeck());
+    }
+
+    private void setActiveFlags(List<Spell> deck) {
+        for (int i = 0; i < deck.size(); i++) {
+            Spell s = deck.get(i);
+            s.setActive(i < 3); // pirmi 3 aktyvūs, likę neaktyvūs
+        }
+    }
+
 }

@@ -7,6 +7,6 @@ public enum SpellType {
     DAMAGE,
     SHIELD,
     DOT,
-    MANADRAIN,
+    MANAD_RAIN,
     CHARGE
 }

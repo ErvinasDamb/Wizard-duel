@@ -43,6 +43,9 @@ public abstract class AbstractSpell implements Spell {
 
     protected final Rarity rarity;
 
+    // --- active state for card cycle ---
+    protected boolean active = false;
+
     /**
      * Full spell definition constructor.
      */
@@ -92,5 +95,15 @@ public abstract class AbstractSpell implements Spell {
         this.elementApplyChance = elementApplyChance;
         this.elementDuration = elementDuration;
         this.rarity = rarity;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

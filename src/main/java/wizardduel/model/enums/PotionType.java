@@ -1,8 +1,10 @@
 package wizardduel.model.enums;
 
 /**
- * Types of potion (single potion for prototype).
+ * Types of potion.
  */
 public enum PotionType {
-    HEAL
+    SMALL_HEAL,
+    HEAL,
+    LARGE_HEAL
 }
