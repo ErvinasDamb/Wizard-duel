@@ -6,16 +6,16 @@ import wizardduel.model.enums.Rarity;
 import wizardduel.model.enums.SpellType;
 
 /**
- * Defensive spell that grants shield to the caster.
+ * Spell that drains mana from the target and gives it to the caster.
  */
-public class ShieldSpell extends AbstractSpell {
+public class ManaDrainSpell extends AbstractSpell {
 
-    public ShieldSpell(
+    public ManaDrainSpell(
             String id,
             String name,
             int manaCost,
             int power,
-            int shieldValue,
+            int manaDrainAmount,
             SpellType type,
             Element element,
             double elementApplyChance,
@@ -29,7 +29,7 @@ public class ShieldSpell extends AbstractSpell {
                 power,
                 0,      // damageMin
                 0,      // damageMax
-                1.0,    // accuracy (irrelevant here)
+                1.0,    // accuracy (nereikalinga)
                 0.0,    // critChance
                 1.0,    // critMultiplier
                 0,      // dotAmount
@@ -37,8 +37,8 @@ public class ShieldSpell extends AbstractSpell {
                 0.0,    // stunChance
                 0.0,    // confuseChance
                 0.0,    // slowStrength
-                shieldValue,
-                0,      // manaDrainAmount
+                0,      // shieldValue
+                manaDrainAmount,
                 1.0,    // chargeMultiplier
                 type,
                 element,
@@ -49,18 +49,22 @@ public class ShieldSpell extends AbstractSpell {
     }
 
     /**
-     * Uses mana and applies shield to the caster.
+     * Drains mana from target and transfers it to caster.
      */
     @Override
     public void cast(Character caster, Character target) {
         if (!caster.useMana(manaCost)) {
             return;
         }
-        if (shieldValue <= 0) {
+
+        int targetMana = target.getMana();
+        if (targetMana <= 0 || manaDrainAmount <= 0) {
             return;
         }
-        caster.applyShield(shieldValue);
-        // Element application bus tvarkoma vėliau per element/synergy sistemą.
+
+        int drained = Math.min(targetMana, manaDrainAmount);
+        target.setMana(targetMana - drained);
+        caster.setMana(caster.getMana() + drained);
+        // Jokio HP punish – čia ne burn, o drain.
     }
 }
-

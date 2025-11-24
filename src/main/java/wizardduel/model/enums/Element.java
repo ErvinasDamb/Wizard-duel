@@ -1,8 +1,15 @@
 package wizardduel.model.enums;
 
 /**
- * Element identity used for synergy.
+ * Element identity used for synergy and effects.
  */
 public enum Element {
-    FIRE, ICE, ARCANE, SHADOW
+    FIRE,
+    WATER,
+    ICE,
+    ELECTRIC,
+    LIGHT,
+    BLOOD,
+    POISON,
+    NEUTRAL
 }
